@@ -6,6 +6,7 @@ charset-normalizer==3.4.7
 click==8.1.8
 exceptiongroup==1.3.1
 fastapi==0.128.8
+flake8==7.3.0
 functions==0.7.0
 h11==0.16.0
 httpcore==1.0.9
@@ -13,14 +14,17 @@ httpx==0.28.1
 idna==3.11
 iniconfig==2.1.0
 joblib==1.5.1
+mccabe==0.7.0
 numpy==1.26.4
 packaging==26.0
 pandas==2.1.1
 pip==25.2
 pluggy==1.6.0
+pycodestyle==2.14.0
 pydantic==2.12.5
 pydantic_core==2.41.5
 pydantic-settings==2.11.0
+pyflakes==3.4.0
 Pygments==2.20.0
 pytest==8.4.2
 python-dateutil==2.9.0.post0

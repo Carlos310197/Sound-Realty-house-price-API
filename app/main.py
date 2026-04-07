@@ -19,6 +19,7 @@ app = FastAPI(
     version=settings.app_version,
 )
 
+
 # Load model at startup
 @app.on_event("startup")
 async def startup_event():
@@ -33,18 +34,19 @@ async def startup_event():
     except Exception as e:
         logger.warning("Failed to load demographics data at startup: %s", e)
 
+
 # Implement the health check endpoint
 @app.get("/health", response_model=HealthCheckResponse)
 async def health_check():
     """
     Check if the service is healthy and model is loaded.
-    
+
     Returns:
         HealthCheckResponse with current service status
     """
     # Get health status from api.py
     health_status = health.check_health()
-    
+
     # Create and return HealthCheckResponse
     return HealthCheckResponse(
         status=health_status["status"],
@@ -52,15 +54,16 @@ async def health_check():
         message=health_status["message"]
     )
 
+
 # Implement the model info endpoint
 @app.get("/model/info", response_model=ModelInfoResponse)
 async def model_info():
     """
     Get information about the loaded model.
-    
+
     Returns:
         ModelInfoResponse with model metadata
-        
+
     Raises:
         HTTPException: If model metadata is not loaded
     """
@@ -78,49 +81,51 @@ async def model_info():
     except ValueError as e:
         # Raise HTTPException with status_code=503 (Service Unavailable)
         raise HTTPException(
-            status_code=503, 
+            status_code=503,
             detail=f"Model information not available: {str(e)}"
         )
+
 
 # Implement the prediction endpoint
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: HousePredictionRequest):
     """
     Predict house price based on property features.
-    
+
     Args:
         request: HousePredictionRequest with all 13 property features
-        
+
     Returns:
         PredictionResponse with predicted price
-        
+
     Raises:
         HTTPException: If model is not loaded or prediction fails
     """
     try:
         # Convert request to dictionary
         features_dict = request.model_dump()
-        
+
         # Make prediction
         predicted_price = predict_route.make_prediction(features_dict)
-        
+
         # Get model version from metadata
         model_info = info.get_model_info()
         model_version = model_info["version"]
-        
+
         # Create and return PredictionResponse
         return PredictionResponse(
             predicted_price=predicted_price,
             currency="USD",
             model_version=model_version
         )
-        
+
     except ValueError as e:
         # Model not loaded error
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         # Other errors
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
 
 # Root endpoint for basic information
 @app.get("/")
@@ -136,4 +141,3 @@ async def root():
             "/docs - Interactive API documentation"
         ]
     }
-    

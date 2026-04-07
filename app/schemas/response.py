@@ -1,11 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import List
 
+
 class PredictionResponse(BaseModel):
     """Schema for prediction response"""
     predicted_price: float = Field(..., description="Predicted house price in USD")
     currency: str = Field(default="USD", description="Currency of the predicted price")
     model_version: str = Field(..., description="Version of the model used for prediction")
+
 
 class ModelInfoResponse(BaseModel):
     """Schema for model information response"""
@@ -15,6 +17,7 @@ class ModelInfoResponse(BaseModel):
     training_date: str = Field(..., description="Date when the model was trained")
     rmse: float = Field(..., description="Root Mean Squared Error from model training")
     description: str = Field(..., description="Description of what the model does")
+
 
 class HealthCheckResponse(BaseModel):
     """Schema for health check response"""
