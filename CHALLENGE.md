@@ -1,4 +1,4 @@
-![phData Logo](phData.png "phData Logo")
+![phData Logo](images/phData.png "phData Logo")
 
 # phData Machine Learning Engineer Candidate Project
 
@@ -137,6 +137,10 @@ that the service works.
 3. Evaluate the performance of the model.  You should start with the code
 in `create_model.py` and try to figure out how well the model will generalize
 to new data.  Has the model appropriately fit the dataset?
+4. Improve the model by applying some basic machine-learning principles. We're not interested in in getting the
+absolute best predictive performance for the model, don't devote too much time to this step. This is not a Kaggle
+competition. Rather we're interested in your understanding of data science concepts and your ability explain the
+decisions you made
 
 ## Recommendations
 - We recommend using [Docker](https://docs.docker.com/get-started/) to

@@ -34,3 +34,5 @@ env/
 
 # Jupyter
 .ipynb_checkpoints/
+
+presentation_plan.md
