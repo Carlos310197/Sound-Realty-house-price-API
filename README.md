@@ -54,25 +54,20 @@ curl http://localhost:8000/model/info
 ```
 
 ### `POST /predict`
-Make a price prediction for a property. Requires 13 property features.
+Make a price prediction for a property. Requires 8 input features (demographic data is enriched automatically via zipcode).
 
 ```bash
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
   -d '{
-    "bedrooms": 3,
-    "bathrooms": 2.0,
-    "sqft_living": 2000,
-    "sqft_lot": 5000,
-    "floors": 1.0,
-    "waterfront": 0,
-    "view": 0,
-    "condition": 3,
-    "grade": 8,
-    "sqft_above": 1800,
-    "sqft_basement": 200,
-    "yr_built": 2000,
-    "yr_renovated": 0
+    "bedrooms": 4,
+    "bathrooms": 1.0,
+    "sqft_living": 1680,
+    "sqft_lot": 5043,
+    "floors": 1.5,
+    "sqft_above": 1680,
+    "sqft_basement": 0,
+    "zipcode": "98118"
   }'
 ```
 
@@ -181,9 +176,9 @@ mle-project-challenge-2/
 
 ## Model Performance
 
-The model is evaluated on:
+The KNeighbors model is evaluated on:
 - **Root Mean Squared Error (RMSE)** - Primary evaluation metric
-- **Feature importance** - 13 numeric property features
+- **Input features** - 8 property features (7 house attributes + zipcode for demographic enrichment)
 - **Generalization** - Validation on unseen data from King County
 
 ## Deployment Considerations
