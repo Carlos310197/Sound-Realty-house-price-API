@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException
 
-from app.schemas.request import HousePredictionRequest
+from app.schemas.request import HousePredictionRequest, FullHousePredictionRequest
 from app.schemas.response import PredictionResponse, ModelInfoResponse, HealthCheckResponse
 
-from app.api.v1.routes import health, info, predict as predict_route
+from app.api.v1.routes import health, info, predict as predict_route, predict_minimal as predict_minimal_route
 from app.services.model import load_model_and_metadata
 from app.services.demographics import load_demographics
 from app.core.config import settings
@@ -88,12 +88,12 @@ async def model_info():
 
 # Implement the prediction endpoint
 @app.post("/predict", response_model=PredictionResponse)
-async def predict(request: HousePredictionRequest):
+async def predict(request: FullHousePredictionRequest):
     """
     Predict house price based on property features.
 
     Args:
-        request: HousePredictionRequest with all 13 property features
+        request: FullHousePredictionRequest with all 18 columns from future_unseen_examples.csv
 
     Returns:
         PredictionResponse with predicted price
@@ -127,6 +127,40 @@ async def predict(request: HousePredictionRequest):
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
 
+# Bonus: minimal prediction endpoint — only the model's required features needed
+@app.post("/predict/minimal", response_model=PredictionResponse)
+async def predict_minimal(request: HousePredictionRequest):
+    """
+    Predict house price using only the required model features.
+
+    Unlike the full /predict endpoint, this endpoint is explicit that callers
+    only need to supply the 7 house features the model actually uses plus a
+    zipcode.  Demographic data is still enriched on the backend.
+
+    Args:
+        request: HousePredictionRequest with the 7 required property features + zipcode
+
+    Returns:
+        PredictionResponse with predicted price
+
+    Raises:
+        HTTPException: If model is not loaded or prediction fails
+    """
+    try:
+        features_dict = request.model_dump()
+        predicted_price = predict_minimal_route.make_minimal_prediction(features_dict)
+        model_version = info.get_model_info()["version"]
+        return PredictionResponse(
+            predicted_price=predicted_price,
+            currency="USD",
+            model_version=model_version
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+
 # Root endpoint for basic information
 @app.get("/")
 async def root():
@@ -137,7 +171,8 @@ async def root():
         "endpoints": [
             "/health - Check service health",
             "/model/info - Get model information",
-            "/predict - Make price prediction",
+            "/predict - Make price prediction (full feature set)",
+            "/predict/minimal - Make price prediction (required features only)",
             "/docs - Interactive API documentation"
         ]
     }

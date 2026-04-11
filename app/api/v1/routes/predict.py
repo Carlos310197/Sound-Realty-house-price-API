@@ -9,7 +9,8 @@ def make_prediction(house_features: Dict[str, Any]) -> float:
     Make a price prediction for a single house.
 
     Args:
-        house_features: Dictionary with 7 house features + zipcode.
+        house_features: Dictionary with all 18 columns from future_unseen_examples.csv.
+                        Only the model's required features are used; the rest are ignored.
 
     Returns:
         Predicted price as a float.

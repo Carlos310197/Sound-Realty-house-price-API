@@ -32,9 +32,19 @@ VALID_PAYLOAD = {
     "sqft_living": 1680,
     "sqft_lot": 5043,
     "floors": 1.5,
+    "waterfront": 0,
+    "view": 0,
+    "condition": 4,
+    "grade": 6,
     "sqft_above": 1680,
     "sqft_basement": 0,
+    "yr_built": 1911,
+    "yr_renovated": 0,
     "zipcode": "98042",  # exists in data/zipcode_demographics.csv
+    "lat": 47.5354,
+    "long": -122.273,
+    "sqft_living15": 1560,
+    "sqft_lot15": 5765,
 }
 
 

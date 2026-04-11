@@ -54,10 +54,38 @@ curl http://localhost:8000/model/info
 ```
 
 ### `POST /predict`
-Make a price prediction for a property. Requires 8 input features (demographic data is enriched automatically via zipcode).
+Make a price prediction for a property. Accepts all 18 columns from the house-sales dataset — pass the full row and the service extracts the features it needs. Demographic data is enriched automatically via zipcode.
 
 ```bash
 curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bedrooms": 4,
+    "bathrooms": 1.0,
+    "sqft_living": 1680,
+    "sqft_lot": 5043,
+    "floors": 1.5,
+    "waterfront": 0,
+    "view": 0,
+    "condition": 4,
+    "grade": 6,
+    "sqft_above": 1680,
+    "sqft_basement": 0,
+    "yr_built": 1911,
+    "yr_renovated": 0,
+    "zipcode": "98118",
+    "lat": 47.5354,
+    "long": -122.273,
+    "sqft_living15": 1560,
+    "sqft_lot15": 5765
+  }'
+```
+
+### `POST /predict/minimal`
+Bonus endpoint for callers who only want to supply the features the model actually requires. Accepts only the 7 house attributes the model uses plus zipcode — no need to know which columns are ignored.
+
+```bash
+curl -X POST http://localhost:8000/predict/minimal \
   -H "Content-Type: application/json" \
   -d '{
     "bedrooms": 4,
@@ -71,7 +99,8 @@ curl -X POST http://localhost:8000/predict \
   }'
 ```
 
-Response:
+Both endpoints return the same response shape:
+
 ```json
 {
   "predicted_price": 425000.50,
@@ -82,7 +111,7 @@ Response:
 
 Interactive API documentation available at `http://localhost:8000/docs`
 
-## Getting Started
+## Getting Started for Local Running
 
 ### Prerequisites
 - Python 3.8+
@@ -137,20 +166,6 @@ Run linting checks:
 flake8 app/ model_dev/ tests/
 ```
 
-## Data Insights
-
-### Seattle Average House Price by ZIP Code
-
-![Seattle Choropleth](images/seattle_choropleth.jpg)
-
-This visualization shows property price distribution across Seattle ZIP codes, with warmer colors indicating higher average prices.
-
-### King County Average House Price by ZIP Code
-
-![King County Choropleth](images/king_county_choropleth.jpg)
-
-Extended price analysis across King County, revealing regional variations in property valuations.
-
 ## Project Structure
 
 ```
@@ -174,11 +189,25 @@ mle-project-challenge-2/
 └── README.md                     # This file
 ```
 
+## Data Insights
+
+### Seattle Average House Price by ZIP Code
+
+![Seattle Choropleth](images/seattle_choropleth.jpg)
+
+This visualization shows property price distribution across Seattle ZIP codes, with warmer colors indicating higher average prices.
+
+### King County Average House Price by ZIP Code
+
+![King County Choropleth](images/king_county_choropleth.jpg)
+
+Extended price analysis across King County, revealing regional variations in property valuations.
+
 ## Model Performance
 
 The KNeighbors model is evaluated on:
 - **Root Mean Squared Error (RMSE)** - Primary evaluation metric
-- **Input features** - 8 property features (7 house attributes + zipcode for demographic enrichment)
+- **Input features** - 7 house attributes used by the model; demographic features enriched automatically via zipcode
 - **Generalization** - Validation on unseen data from King County
 
 ## Deployment Considerations
