@@ -36,3 +36,7 @@ env/
 .ipynb_checkpoints/
 
 presentation_plan.md
+
+# GIF
+tests/scripts/test_endpoint_for_gif.py
+demo.tape

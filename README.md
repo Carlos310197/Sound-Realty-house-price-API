@@ -15,6 +15,10 @@ This project deploys a machine learning model as a scalable REST API service for
 - **Health check** and model metadata endpoints
 - **Comprehensive testing** with pytest and Flake8 linting
 
+## Demo
+
+![Prediction Demo](images/demo.gif)
+
 ## Architecture
 
 ### Local Development Architecture
@@ -27,15 +31,30 @@ The local architecture consists of:
 3. **REST API** - FastAPI application with prediction endpoints
 4. **Docker** - Containerized deployment for consistency across environments
 
-### AWS Cloud Architecture
+### AWS Cloud Architecture — Fargate (Cost Effective)
 
 ![AWS Cloud Architecture](images/cloud_aws_arch.svg)
 
 The cloud deployment leverages AWS services for scalability:
-- **ECS/Fargate** - Containerized API service
-- **ALB** - Load balancing for high availability
-- **RDS** - Demographic data store
-- **Auto Scaling** - Dynamic resource management
+- **ECS/Fargate** - Containerized API service with no server management
+- **ALB** - Load balancing and traffic distribution across tasks
+- **S3** - Model artifact storage with versioning
+- **Auto Scaling** - Dynamic resource management based on CPU/request load
+- **GitHub Actions** - CI/CD pipeline: lint → test → build → push ECR → deploy ECS
+
+### AWS Cloud Architecture — SageMaker (Model Performance)
+
+![AWS SageMaker Architecture](images/cloud_aws_arch_sagemaker.svg)
+
+An alternative deployment using fully managed ML infrastructure:
+- **API Gateway** - Managed REST entry point with throttling and auth
+- **Lambda** - Preprocessing layer: input validation, demographics enrichment via Online Feature Store, response formatting
+- **SageMaker Endpoint** - Fully managed, auto-scaling inference with built-in SKLearn container (no custom Docker image needed)
+- **SageMaker Model Registry** - Model versioning with approval workflows and lineage tracking
+- **SageMaker Pipelines** - Managed retraining DAG: preprocess → train → evaluate → register → deploy
+- **SageMaker Model Monitor** - Built-in data drift detection and model quality monitoring
+- **Online Feature Store** - Low-latency demographic feature lookup for consistent training/serving features
+- **GitHub Actions** - Application CI/CD: lint, test, and Lambda deployment
 
 ## API Endpoints
 
@@ -210,27 +229,11 @@ The KNeighbors model is evaluated on:
 - **Input features** - 7 house attributes used by the model; demographic features enriched automatically via zipcode
 - **Generalization** - Validation on unseen data from King County
 
-## Deployment Considerations
+## Next Steps
 
-### Scalability
-- **Stateless API design** enables horizontal scaling
-- Load balancing distributes requests across multiple instances
-- Auto-scaling policies respond to demand fluctuations
-
-### Model Updates
-- Deploy new model versions without service interruption
-- Blue-green deployment strategy for seamless transitions
-- Versioning system tracks model changes
-
-### Monitoring
-- Health check endpoints for continuous monitoring
-- Logging integration for diagnostic analysis
-- Model metrics tracked for performance degradation
-
-## Future Improvements
-
-- Feature engineering for improved predictions
-- Model retraining pipeline with scheduled updates
-- Advanced demographic data integration
-- A/B testing framework for model versions
-- Enhanced monitoring and alerting
+- **Promote improved model** — replace the baseline KNN (RMSE $201K) with the Gradient Boosting model from [`new_model_dev.ipynb`](model_dev/new_model_dev.ipynb) (RMSE $122K, 38% better)
+- **Deploy to AWS** — the project is containerized but not yet live; Fargate is the recommended first step, SageMaker for longer-term MLOps governance
+- **Feature store** — move demographics from in-memory CSV to AWS Online Feature Store or DynamoDB to prevent training/serving skew
+- **Retraining pipeline** — automate quarterly retraining with RMSE gating before promoting a new model version
+- **Drift monitoring** — add CloudWatch metrics (Fargate) or SageMaker Model Monitor to detect input distribution shifts
+- **Multi-region expansion** — collect sales data beyond King County and retrain for additional markets
